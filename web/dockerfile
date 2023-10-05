@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY --from=builder /app/release/ /app/
 
-EXPOSE 5002
-ENV DOTNET_URLS=http://+:5002
+EXPOSE 80
+ENV DOTNET_URLS=http://+:80
 
 ENTRYPOINT ["dotnet", "website.dll"]

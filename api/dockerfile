@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY --from=builder /app/release/ /app/
 
-EXPOSE 5003
-ENV DOTNET_URLS=http://+:5003
+EXPOSE 80
+ENV DOTNET_URLS=http://+:80
 
 ENTRYPOINT ["dotnet", "Balance.dll"]
