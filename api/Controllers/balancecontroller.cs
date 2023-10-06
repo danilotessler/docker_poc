@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Balance.Models;
+using System.Net;
 
 namespace Balance.Controllers;
 
@@ -9,13 +9,12 @@ public class BalanceController : ControllerBase
 {
     public BalanceController() {}
 
-    [HttpGet("{account}")]
-    public async Task<ActionResult<Balance.Models.Balance>> GetBalance(int account)
+    [HttpGet("")]
+    public async Task<ActionResult<string>> GetBalance()
     {
-        Random rnd = new Random();
+        string hostName = Dns.GetHostName(); // Retrive the Name of HOST
+        string myIP = Dns.GetHostByName(hostName).AddressList[0].ToString();
 
-        var ret = new Balance.Models.Balance(account, rnd.Next());
-
-        return ret;
+        return "Enquire time: " + DateTime.Now.ToString("HH:mm:ss.fffff") + " - Hostname: " + hostName + " - IP: " + myIP;
     }
 }

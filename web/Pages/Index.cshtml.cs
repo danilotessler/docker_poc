@@ -20,15 +20,15 @@ public class IndexModel : PageModel
         if (!string.IsNullOrEmpty(HttpContext.Request.Query["uri"]))
         {
             string uri = HttpContext.Request.Query["uri"].ToString();
-            Balance bal = GetBalance(uri);
+            string res = GetResult(uri);
 
-            Message = "After calling the service: " + uri + "<br/> The balance for the member " + bal.Account + " is : " + bal.Available;
+            Message = "After calling the service: " + uri + " <br/>" + res; 
         }
     }
 
-    private Balance GetBalance(string uri)
+    private string GetResult(string uri)
     {
-        Balance ret = new();
+        string ret = "";
 
         HttpClient client = new HttpClient();
 
@@ -39,22 +39,16 @@ public class IndexModel : PageModel
         
         Random rnd = new Random();
 
-        string path = "balance/" + rnd.Next(100).ToString();
+        string path = "balance/";
 
         HttpResponseMessage response = client.GetAsync(path).Result;
         if (response.IsSuccessStatusCode)
         {
-            ret = response.Content.ReadFromJsonAsync<Balance>().Result;
+            ret = response.Content.ReadAsStringAsync().Result;
         }
         else
             throw new ApplicationException("Calling the service got " + response.StatusCode + "\r\n" + response.Content);
 
         return ret;
     }
-}
-
-public class Balance
-{
-    public int Account { get; set; }
-    public double Available { get; set; }
 }
