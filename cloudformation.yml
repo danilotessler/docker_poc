@@ -1,4 +1,227 @@
 AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    ECRRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "poc_${ECSService.Name}"
+            LifecyclePolicy: 
+                RegistryId: !Ref AWS::AccountId
+
+    ECRRepository2:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "poc_${ECSService2.Name}app2${ECSService.Name}"
+            LifecyclePolicy: 
+                RegistryId: !Ref AWS::AccountId
+
+    ECRRepository3:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "poc_${ECSService2.Name}"
+            LifecyclePolicy: 
+                RegistryId: !Ref AWS::AccountId
+
+    ECSCluster:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: "WebApp1"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSCluster2:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: "WebApp_2"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: !GetAtt ECSService3.Name
+            Cluster: !GetAtt ECSCluster.Arn
+            DesiredCount: 0
+            LaunchType: "FARGATE"
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition2
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "ENABLED"
+                    SecurityGroups: 
+                      - "sg-0b3ace41a7a0a9210"
+                      - "sg-09c09fd84a1fd2ff7"
+                    Subnets: 
+                      - "subnet-0a0a9c6b037524e02"
+                      - "subnet-09097b54b1b5ebaef"
+                      - "subnet-0cdb61a237b1c5de7"
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+
+    ECSService2:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "web"
+            Cluster: !GetAtt ECSCluster.Arn
+            DesiredCount: 0
+            LaunchType: "FARGATE"
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "ENABLED"
+                    SecurityGroups: 
+                      - "sg-0b3ace41a7a0a9210"
+                      - "sg-09c09fd84a1fd2ff7"
+                    Subnets: 
+                      - "subnet-0a0a9c6b037524e02"
+                      - "subnet-09097b54b1b5ebaef"
+                      - "subnet-0cdb61a237b1c5de7"
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+
+    ECSService3:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "api"
+            Cluster: !GetAtt ECSCluster2.Arn
+            DesiredCount: 0
+            LaunchType: "FARGATE"
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition3
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker: 
+                    Enable: true
+                    Rollback: true
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "ENABLED"
+                    SecurityGroups: 
+                      - "sg-0b3ace41a7a0a9210"
+                      - "sg-09c09fd84a1fd2ff7"
+                    Subnets: 
+                      - "subnet-0a0a9c6b037524e02"
+                      - "subnet-09097b54b1b5ebaef"
+                      - "subnet-0cdb61a237b1c5de7"
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/poc_web"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/WebApp_Web"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: "web"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "WebApp_Web"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+    ECSTaskDefinition2:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/poc_${ECSService3.Name}"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/WebApp_Api"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: !GetAtt ECSService3.Name
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "WebApp_Api"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+    ECSTaskDefinition3:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/poc_${ECSService2.Name}app2api"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/WebApp2_Api"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: "api"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "WebApp2_Api"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+
+
+
+
+AWSTemplateFormatVersion: "2010-09-09"
 Description: ""
 Parameters:
   ProjectName:
