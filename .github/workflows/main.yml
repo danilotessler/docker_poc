@@ -29,6 +29,4 @@ jobs:
           name: gbintdev
           template: cloudformation.yml
           no-fail-on-empty-changeset: "1"
-          parameter-overrides: |
-            ProjectName=DCU |
-            EnvironmentName=Dev
+          parameter-overrides: "ProjectName=DCU,EnvironmentName=Dev"
