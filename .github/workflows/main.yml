@@ -1,7 +1,14 @@
 name: 'Deploy to AWS CloudFormation'
 
 on:
-  workflow_dispatch
+  workflow_dispatch :
+    inputs :
+      ProjectName:
+        description: 'Project Name'
+        required: true
+      EnvironmentName:
+        description: 'Environment artifacts'
+        required: true
 
 jobs:
   # This workflow contains a single job called "deploy"
@@ -26,7 +33,7 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: gbintdev
+          name: gbintdev1
           template: cloudformation.yml
           no-fail-on-empty-changeset: "1"
-          parameter-overrides: "ProjectName=DCU,EnvironmentName=Dev"
+          parameter-overrides: "ProjectName=${{ github.event.inputs.ProjectName }},EnvironmentName=${{ github.event.inputs.EnvironmentName }}"
