@@ -7,7 +7,7 @@ on:
         description: 'Project Name'
         required: true
       EnvironmentName:
-        description: 'Environment artifacts'
+        description: 'Environment Name'
         required: true
 
 jobs:
