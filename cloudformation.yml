@@ -13,11 +13,15 @@ Resources:
       Type: 'AWS::ECR::Repository'
       Properties:
         RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
-        ImageTagMutability: MUTABLE                
+        ImageTagMutability: MUTABLE   
+        LifecyclePolicy:
+          LifecyclePolicyText: PowerUserAccess                     
 
     ECRRepositoryApi:
       Type: 'AWS::ECR::Repository'
       Properties:
         RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/api"
-        ImageTagMutability: MUTABLE                
+        ImageTagMutability: MUTABLE   
+        LifecyclePolicy:
+          LifecyclePolicyText: PowerUserAccess                     
 
