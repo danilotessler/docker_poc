@@ -46,6 +46,6 @@ jobs:
         ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/api
         IMAGE_TAG: latest
       run: |
-        cd ../api        
+        cd api        
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG        
