@@ -36,7 +36,9 @@ jobs:
         ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/web
         IMAGE_TAG: latest
       run: |
+        echo pwd
         cd web
+        echo pwd
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         
@@ -46,6 +48,8 @@ jobs:
         ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/api
         IMAGE_TAG: latest
       run: |
-        cd api        
+        echo pwd
+        cd api
+        echo pwd
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG        
