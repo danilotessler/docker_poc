@@ -59,11 +59,68 @@ Resources:
               - "FARGATE"
               - "FARGATE_SPOT"
 
-    ECSClusterWeb:
+    ECSClusterApi:
         Type: "AWS::ECS::Cluster"
         Properties:
             ClusterName: !Sub "${ProjectName}_${EnvironmentName}_api"
             CapacityProviders: 
               - "FARGATE"
               - "FARGATE_SPOT"
-              
+
+    ECSTaskDefinitionWeb:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/!Sub ${ProjectName}/${EnvironmentName}/web"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/!Sub ${ProjectName}_${EnvironmentName}_web"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: !Sub "${ProjectName}_${EnvironmentName}_web"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: !Sub "${ProjectName}_${EnvironmentName}_web"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+    ECSTaskDefinitionApi:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions: 
+              - 
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/!Sub ${ProjectName}/${EnvironmentName}/api"
+                LogConfiguration: 
+                    LogDriver: "awslogs"
+                    Options: 
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/!Sub ${ProjectName}_${EnvironmentName}_api"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: !Sub "${ProjectName}_${EnvironmentName}_api"
+                PortMappings: 
+                  - 
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: !Sub "${ProjectName}_${EnvironmentName}_api"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities: 
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
