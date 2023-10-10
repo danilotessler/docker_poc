@@ -1,16 +1,22 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Metadata:
-    Generator: "former2"
-Description: ""
+Description: "ECS Web POC Project"
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Project Name
+  EnvironmentName:
+    Type: String
+    Description: Environment Name
+
 Resources:
-    ECRRepository:
+    ECRRepositoryWeb:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "poc_${ECSService.Name}"
+            RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
             LifecyclePolicy: 
                 RegistryId: !Ref AWS::AccountId
 
-    ECRRepository2:
+    ECRRepositoryAPI:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "poc_${ECSService2.Name}app2${ECSService.Name}"
