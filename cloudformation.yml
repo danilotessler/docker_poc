@@ -51,3 +51,19 @@ Resources:
               }]
             }                    
 
+    ECSClusterWeb:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: !Sub "${ProjectName}_${EnvironmentName}_web"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+
+    ECSClusterWeb:
+        Type: "AWS::ECS::Cluster"
+        Properties:
+            ClusterName: !Sub "${ProjectName}_${EnvironmentName}_api"
+            CapacityProviders: 
+              - "FARGATE"
+              - "FARGATE_SPOT"
+              
