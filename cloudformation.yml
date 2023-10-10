@@ -73,12 +73,12 @@ Resources:
             ContainerDefinitions: 
               - 
                 Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/!Sub ${ProjectName}/${EnvironmentName}/web"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/web"
                 LogConfiguration: 
                     LogDriver: "awslogs"
                     Options: 
                         awslogs-create-group: "true"
-                        awslogs-group: "/ecs/!Sub ${ProjectName}_${EnvironmentName}_web"
+                        awslogs-group: !Sub "/ecs/${ProjectName}_${EnvironmentName}_web"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "ecs"
                 Name: !Sub "${ProjectName}_${EnvironmentName}_web"
@@ -102,12 +102,12 @@ Resources:
             ContainerDefinitions: 
               - 
                 Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/!Sub ${ProjectName}/${EnvironmentName}/api"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/api"
                 LogConfiguration: 
                     LogDriver: "awslogs"
                     Options: 
                         awslogs-create-group: "true"
-                        awslogs-group: "/ecs/!Sub ${ProjectName}_${EnvironmentName}_api"
+                        awslogs-group: !Sub "/ecs/${ProjectName}_${EnvironmentName}_api"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "ecs"
                 Name: !Sub "${ProjectName}_${EnvironmentName}_api"
