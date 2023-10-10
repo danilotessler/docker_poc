@@ -15,7 +15,20 @@ Resources:
         RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
         ImageTagMutability: MUTABLE   
         LifecyclePolicy:
-          LifecyclePolicyText: arn:aws:iam::aws:policy/PowerUserAccess                     
+          LifecyclePolicyText: |
+            {
+              "rules": [
+                {
+                  "rulePriority": 1,
+                  "description": "Only keep 10 images",
+                  "selection": {
+                    "tagStatus": "any",
+                    "countType": "imageCountMoreThan",
+                    "countNumber": 10
+                },
+                "action": { "type": "expire" }
+              }]
+            }                 
 
     ECRRepositoryApi:
       Type: 'AWS::ECR::Repository'
@@ -23,5 +36,18 @@ Resources:
         RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/api"
         ImageTagMutability: MUTABLE   
         LifecyclePolicy:
-          LifecyclePolicyText: arn:aws:iam::aws:policy/PowerUserAccess                     
+          LifecyclePolicyText: |
+            {
+              "rules": [
+                {
+                  "rulePriority": 1,
+                  "description": "Only keep 10 images",
+                  "selection": {
+                    "tagStatus": "any",
+                    "countType": "imageCountMoreThan",
+                    "countNumber": 10
+                },
+                "action": { "type": "expire" }
+              }]
+            }                    
 
