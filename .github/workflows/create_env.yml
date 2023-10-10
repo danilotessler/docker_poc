@@ -1,4 +1,4 @@
-name: 'Deploy to AWS CloudFormation'
+name: 'Deploy Environment'
 
 on:
   workflow_dispatch :
