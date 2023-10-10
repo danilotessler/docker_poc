@@ -10,15 +10,14 @@ Parameters:
 
 Resources:
     ECRRepositoryWeb:
-        Type: "AWS::ECR::Repository"
-        Properties:
-            RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
-            LifecyclePolicy: 
-                RegistryId: !Ref AWS::AccountId
+      Type: 'AWS::ECR::Repository'
+      Properties:
+        RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
+        ImageTagMutability: MUTABLE                
 
-    ECRRepositoryAPI:
-        Type: "AWS::ECR::Repository"
-        Properties:
-            RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/api"
-            LifecyclePolicy: 
-                RegistryId: !Ref AWS::AccountId
+    ECRRepositoryApi:
+      Type: 'AWS::ECR::Repository'
+      Properties:
+        RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/api"
+        ImageTagMutability: MUTABLE                
+
