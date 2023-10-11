@@ -147,11 +147,6 @@ Resources:
                       DnsName: "web"
             DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy:
-              -
-                CapacityProvider: "FARGATE"
-                Weight: 1
-                Base: 0              
 
     ECSServiceApi:
         Type: "AWS::ECS::Service"
@@ -192,8 +187,3 @@ Resources:
                       DnsName: "api"
             DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy:
-              -
-                CapacityProvider: "FARGATE"
-                Weight: 1
-                Base: 0   
