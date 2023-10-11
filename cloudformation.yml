@@ -124,7 +124,6 @@ Resources:
                 DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
             NetworkConfiguration:
                 AwsvpcConfiguration:
                     AssignPublicIp: "ENABLED"
@@ -170,7 +169,6 @@ Resources:
                 DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
             NetworkConfiguration:
                 AwsvpcConfiguration:
                     AssignPublicIp: "ENABLED"
