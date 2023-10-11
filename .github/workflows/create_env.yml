@@ -33,7 +33,7 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ github.event.inputs.ProjectName }}_${{ github.event.inputs.EnvironmentName }}
+          name: ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}
           template: cloudformation.yml
           no-fail-on-empty-changeset: "1"
           parameter-overrides: "ProjectName=${{ github.event.inputs.ProjectName }},EnvironmentName=${{ github.event.inputs.EnvironmentName }}"

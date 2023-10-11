@@ -54,7 +54,7 @@ Resources:
     ECSCluster:
         Type: "AWS::ECS::Cluster"
         Properties:
-            ClusterName: !Sub "${ProjectName}_${EnvironmentName}"
+            ClusterName: !Sub "${ProjectName}-${EnvironmentName}"
             CapacityProviders: 
               - "FARGATE"
               - "FARGATE_SPOT"
@@ -62,7 +62,7 @@ Resources:
     Namespace :
         Type: "AWS::ServiceDiscovery::HttpNamespace"
         Properties:
-            Name: !Sub "${ProjectName}_${EnvironmentName}"
+            Name: !Sub "${ProjectName}-${EnvironmentName}"
 
     ECSTaskDefinitionWeb:
         Type: "AWS::ECS::TaskDefinition"
@@ -71,14 +71,14 @@ Resources:
               - 
                 Essential: true
                 Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/web"
-                Name: !Sub "${ProjectName}_${EnvironmentName}_web"
+                Name: !Sub "${ProjectName}-${EnvironmentName}-web"
                 PortMappings: 
                   - 
                     Name: "${ProjectName}-${EnvironmentName}-web-80"
                     ContainerPort: 80
                     HostPort: 80
                     Protocol: "tcp"
-            Family: !Sub "${ProjectName}_${EnvironmentName}_web"
+            Family: !Sub "${ProjectName}-${EnvironmentName}-web"
             TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
             ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
             NetworkMode: "awsvpc"
@@ -90,7 +90,7 @@ Resources:
     ECSServiceWeb:
         Type: "AWS::ECS::Service"
         Properties:
-            ServiceName: !Sub "${ProjectName}_${EnvironmentName}_web"
+            ServiceName: !Sub "${ProjectName}-${EnvironmentName}-web"
             Cluster: !GetAtt ECSCluster.Arn
             DesiredCount: 1
             PlatformVersion: "LATEST"
