@@ -1,0 +1,212 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    EC2NetworkInterface:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:attachment/8eae2815-2e24-4693-b166-93401024e934"
+            PrivateIpAddress: "172.31.6.84"
+            PrivateIpAddresses:
+              -
+                PrivateIpAddress: "172.31.6.84"
+                Primary: true
+            SubnetId: "subnet-0cdb61a237b1c5de7"
+            SourceDestCheck: true
+            Tags:
+              -
+                Key: "aws:ecs:clusterName"
+                Value: !Ref ECSCluster
+              -
+                Key: "aws:ecs:serviceName"
+                Value: !GetAtt ECSService.Name
+            GroupSet:
+              - "sg-09c09fd84a1fd2ff7"
+              - "sg-0b3ace41a7a0a9210"
+
+    EC2NetworkInterface2:
+        Type: "AWS::EC2::NetworkInterface"
+        Properties:
+            Description: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:attachment/e2a5d2e1-cbda-4f98-b1df-1e921e357d8c"
+            PrivateIpAddress: "172.31.3.254"
+            PrivateIpAddresses:
+              -
+                PrivateIpAddress: "172.31.3.254"
+                Primary: true
+            SubnetId: "subnet-0cdb61a237b1c5de7"
+            SourceDestCheck: true
+            Tags:
+              -
+                Key: "aws:ecs:serviceName"
+                Value: !GetAtt ECSService2.Name
+              -
+                Key: "aws:ecs:clusterName"
+                Value: !Ref ECSCluster
+            GroupSet:
+              - "sg-09c09fd84a1fd2ff7"
+              - "sg-0b3ace41a7a0a9210"
+
+
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "ABC_Web_Service"
+            Cluster: !GetAtt ECSCluster.Arn
+            DesiredCount: 1
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition
+            DeploymentConfiguration:
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker:
+                    Enable: true
+                    Rollback: true
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration:
+                AwsvpcConfiguration:
+                    AssignPublicIp: "ENABLED"
+                    SecurityGroups:
+                      - "sg-0b3ace41a7a0a9210"
+                      - "sg-09c09fd84a1fd2ff7"
+                    Subnets:
+                      - "subnet-0a0a9c6b037524e02"
+                      - "subnet-09097b54b1b5ebaef"
+                      - "subnet-0cdb61a237b1c5de7"
+            SchedulingStrategy: "REPLICA"
+            DeploymentController:
+                Type: "ECS"
+            CapacityProviderStrategy:
+              -
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSService2:
+        Type: "AWS::ECS::Service"
+        Properties:
+            ServiceName: "ABC_API_Service"
+            Cluster: !GetAtt ECSCluster.Arn
+            DesiredCount: 1
+            PlatformVersion: "LATEST"
+            TaskDefinition: !Ref ECSTaskDefinition2
+            DeploymentConfiguration:
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker:
+                    Enable: true
+                    Rollback: true
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+            NetworkConfiguration:
+                AwsvpcConfiguration:
+                    AssignPublicIp: "ENABLED"
+                    SecurityGroups:
+                      - "sg-0b3ace41a7a0a9210"
+                      - "sg-09c09fd84a1fd2ff7"
+                    Subnets:
+                      - "subnet-0a0a9c6b037524e02"
+                      - "subnet-09097b54b1b5ebaef"
+                      - "subnet-0cdb61a237b1c5de7"
+            SchedulingStrategy: "REPLICA"
+            DeploymentController:
+                Type: "ECS"
+            CapacityProviderStrategy:
+              -
+                CapacityProvider: "FARGATE"
+                Weight: 1
+                Base: 0
+
+    ECSTaskDefinition:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions:
+              -
+                Cpu: 1024
+                Environment:
+                  -
+                    Name: "abc_cont_web_param"
+                    Value: "value"
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/poc_web"
+                LogConfiguration:
+                    LogDriver: "awslogs"
+                    Options:
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/ABC_Web_TaskDefinition"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: "abc_web"
+                PortMappings:
+                  -
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "ABC_Web_TaskDefinition"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities:
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+    ECSTaskDefinition2:
+        Type: "AWS::ECS::TaskDefinition"
+        Properties:
+            ContainerDefinitions:
+              -
+                Environment:
+                  -
+                    Name: "abc_api_container_param"
+                    Value: "param"
+                Essential: true
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/poc_api"
+                LogConfiguration:
+                    LogDriver: "awslogs"
+                    Options:
+                        awslogs-create-group: "true"
+                        awslogs-group: "/ecs/ABC_API_TaskDefinition"
+                        awslogs-region: !Ref AWS::Region
+                        awslogs-stream-prefix: "ecs"
+                Name: "abc_api"
+                PortMappings:
+                  -
+                    ContainerPort: 80
+                    HostPort: 80
+                    Protocol: "tcp"
+            Family: "ABC_API_TaskDefinition"
+            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+            NetworkMode: "awsvpc"
+            RequiresCompatibilities:
+              - "FARGATE"
+            Cpu: "1024"
+            Memory: "3072"
+
+    ServiceDiscoveryHttpNamespace:
+        Type: "AWS::ServiceDiscovery::HttpNamespace"
+        Properties:
+            Name: !Sub "${ECSCluster}_Namespace"
+
+    ServiceDiscoveryInstance:
+        Type: "AWS::ServiceDiscovery::Instance"
+        Properties:
+            InstanceId: "6c052d490548445c8a6007be6d97f4a7"
+            InstanceAttributes:
+                AWS_INSTANCE_IPV4: "172.31.6.84"
+                AWS_INSTANCE_PORT: "80"
+                AvailabilityZone: !Sub "${AWS::Region}a"
+                DeploymentId: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-set/${ECSCluster}/${ECSService.Name}/ecs-svc/8192538902133197814"
+            ServiceId: "srv-4caprhr2t2u2j6ow"
+
+    ServiceDiscoveryInstance2:
+        Type: "AWS::ServiceDiscovery::Instance"
+        Properties:
+            InstanceId: "c8ef96ae5f6349e5a2fa31151806462c"
+            InstanceAttributes:
+                AWS_INSTANCE_IPV4: "172.31.3.254"
+                AWS_INSTANCE_PORT: "80"
+                AvailabilityZone: !Sub "${AWS::Region}a"
+                DeploymentId: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-set/${ECSCluster}/${ECSService2.Name}/ecs-svc/3390399352803677560"
+            ServiceId: "srv-a3wqzjdgmxzhmbaa"

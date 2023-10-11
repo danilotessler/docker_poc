@@ -74,32 +74,11 @@ Resources:
                 Name: !Sub "${ProjectName}_${EnvironmentName}_web"
                 PortMappings: 
                   - 
+                    Name: "${ProjectName}_${EnvironmentName}_web_80"
                     ContainerPort: 80
                     HostPort: 80
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}_${EnvironmentName}_web"
-            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-            NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
-              - "FARGATE"
-            Cpu: "1024"
-            Memory: "3072"
-
-    ECSTaskDefinitionApi:
-        Type: "AWS::ECS::TaskDefinition"
-        Properties:
-            ContainerDefinitions: 
-              - 
-                Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/api"
-                Name: !Sub "${ProjectName}_${EnvironmentName}_api"
-                PortMappings: 
-                  - 
-                    ContainerPort: 80
-                    HostPort: 80
-                    Protocol: "tcp"
-            Family: !Sub "${ProjectName}_${EnvironmentName}_api"
             TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
             ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
             NetworkMode: "awsvpc"
@@ -139,7 +118,7 @@ Resources:
               Namespace : !GetAtt Namespace.Arn
               Services : 
                 - 
-                  PortName : "web-80-tcp"
+                  PortName : "${ProjectName}_${EnvironmentName}_web_80"
                   DiscoveryName : "web"
                   ClientAliases :
                     -
@@ -148,42 +127,3 @@ Resources:
             DeploymentController:
                 Type: "ECS"
 
-    ECSServiceApi:
-        Type: "AWS::ECS::Service"
-        Properties:
-            ServiceName: !Sub "${ProjectName}_${EnvironmentName}_api"
-            Cluster: !GetAtt ECSCluster.Arn
-            DesiredCount: 1
-            PlatformVersion: "LATEST"
-            TaskDefinition: !Ref ECSTaskDefinitionWeb
-            LaunchType : "FARGATE"
-            SchedulingStrategy: "REPLICA"
-            DeploymentConfiguration:
-                MaximumPercent: 200
-                MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker:
-                    Enable: true
-                    Rollback: true
-            NetworkConfiguration:
-                AwsvpcConfiguration:
-                    AssignPublicIp: "ENABLED"
-                    SecurityGroups:
-                      - "sg-0b3ace41a7a0a9210"
-                      - "sg-09c09fd84a1fd2ff7"
-                    Subnets:
-                      - "subnet-0a0a9c6b037524e02"
-                      - "subnet-09097b54b1b5ebaef"
-                      - "subnet-0cdb61a237b1c5de7"
-            ServiceConnectConfiguration:
-              Enabled: true
-              Namespace : !GetAtt Namespace.Arn
-              Services : 
-                - 
-                  PortName : "api-80-tcp"
-                  DiscoveryName : "api"
-                  ClientAliases :
-                    -
-                      Port : 80
-                      DnsName: "api"
-            DeploymentController:
-                Type: "ECS"
