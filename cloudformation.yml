@@ -126,4 +126,7 @@ Resources:
                       DnsName: "web"
             DeploymentController:
                 Type: "ECS"
-
+Outputs:
+  PortName:
+    Description: "Port Name"
+    Value: !Sub "${ProjectName}-${EnvironmentName}-web-80"
