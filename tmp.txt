@@ -9,26 +9,6 @@ Parameters:
     Description: Environment Name
 
 Resources:
-    ECRRepositoryWeb:
-        Type: "AWS::ECR::Repository"
-        Properties:
-            RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
-            LifecyclePolicy: 
-                RegistryId: !Ref AWS::AccountId
-
-    ECRRepositoryAPI:
-        Type: "AWS::ECR::Repository"
-        Properties:
-            RepositoryName: !Sub "poc_${ECSService2.Name}app2${ECSService.Name}"
-            LifecyclePolicy: 
-                RegistryId: !Ref AWS::AccountId
-
-    ECRRepository3:
-        Type: "AWS::ECR::Repository"
-        Properties:
-            RepositoryName: !Sub "poc_${ECSService2.Name}"
-            LifecyclePolicy: 
-                RegistryId: !Ref AWS::AccountId
 
     ECSCluster:
         Type: "AWS::ECS::Cluster"
