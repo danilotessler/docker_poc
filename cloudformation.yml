@@ -9,6 +9,41 @@ Parameters:
     Description: Environment Name
 
 Resources:
+
+  LoadBalancer :
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Type: "application"
+      Name: !Sub "${ProjectName}-${EnvironmentName}-web"
+      SecurityGroups:
+        - "sg-0b3ace41a7a0a9210"
+        - "sg-09c09fd84a1fd2ff7"
+      Subnets:
+        - "subnet-0a0a9c6b037524e02"
+        - "subnet-09097b54b1b5ebaef"
+        - "subnet-0cdb61a237b1c5de7"
+
+  TargetGroup : 
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties: 
+      HealthCheckPath: "/"
+      Name: !Sub "${ProjectName}-${EnvironmentName}-web"
+      Port: 80
+      Protocol: "HTTP"
+      TargetType: "ip"
+      HealthCheckProtocol: "HTTP"
+      VpcId: "vpc-04c4cd12748bfbb0f"
+
+  Listener : 
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties: 
+      DefaultActions:
+        Type: "forward"
+        TargetGroupArn: !GetAtt TargetGroup.Arn
+      LoadBalancerArn: !GetAtt LoadBalancer.Arn
+      Port: 80
+      Protocol: "HTTP"
+
     ECRRepositoryWeb:
       Type: 'AWS::ECR::Repository'
       Properties:
@@ -136,17 +171,12 @@ Resources:
                       - "subnet-0a0a9c6b037524e02"
                       - "subnet-09097b54b1b5ebaef"
                       - "subnet-0cdb61a237b1c5de7"
-            ServiceConnectConfiguration:
-              Enabled: true
-              Namespace : !GetAtt Namespace.Arn
-              Services : 
-                - 
-                  PortName : !Sub "${ProjectName}-${EnvironmentName}-web-80"
-                  DiscoveryName : "web"
-                  ClientAliases :
-                    -
-                      Port : 80
-                      DnsName: "web"
+            LoadBalancers:
+              - 
+                ContainerName: "${ProjectName}-${EnvironmentName}-web"
+                ContainerPort: 80
+                LoadBalancerName:  !Ref "AWS::NoValue"
+                TargetGroupArn: !GetAtt TargetGroup.Arn
             DeploymentController:
                 Type: "ECS"
 
