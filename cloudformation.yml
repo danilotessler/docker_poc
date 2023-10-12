@@ -40,9 +40,9 @@ Resources:
       DefaultActions:
         Type: "forward"
         TargetGroupArn: !GetAtt TargetGroup.Arn
-      LoadBalancerArn: !GetAtt LoadBalancer.Arn
-      Port: 80
-      Protocol: "HTTP"
+        LoadBalancerArn: !GetAtt LoadBalancer.Arn
+        Port: 80
+        Protocol: "HTTP"
 
     ECRRepositoryWeb:
       Type: 'AWS::ECR::Repository'
