@@ -39,8 +39,8 @@ Resources:
     Properties: 
       DefaultActions:
         Type: "forward"
-        TargetGroupArn: !GetAtt TargetGroup.Arn
-      LoadBalancerArn: !GetAtt LoadBalancer.Arn
+        TargetGroupArn: !GetAtt TargetGroup.TargetGroupArn
+      LoadBalancerArn: !GetAtt LoadBalancer.LoadBalancerArn
       Port: 80
       Protocol: "HTTP"
 
@@ -176,7 +176,7 @@ Resources:
               ContainerName: !Sub "${ProjectName}-${EnvironmentName}-web"
               ContainerPort: 80
               LoadBalancerName:  !Ref "AWS::NoValue"
-              TargetGroupArn: !GetAtt TargetGroup.Arn
+              TargetGroupArn: !GetAtt TargetGroup.TargetGroupArn
           DeploymentController:
               Type: "ECS"
 
