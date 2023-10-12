@@ -173,7 +173,7 @@ Resources:
                     - "subnet-0cdb61a237b1c5de7"
           LoadBalancers:
             - 
-              ContainerName: "${ProjectName}-${EnvironmentName}-web"
+              ContainerName: !Sub "${ProjectName}-${EnvironmentName}-web"
               ContainerPort: 80
               LoadBalancerName:  !Ref "AWS::NoValue"
               TargetGroupArn: !Sub "${ProjectName}-${EnvironmentName}-web"
