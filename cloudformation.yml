@@ -32,7 +32,7 @@ Resources:
       Protocol: "HTTP"
       TargetType: "ip"
       HealthCheckProtocol: "HTTP"
-      VpcId: "vpc-04c4cd12748bfbb0f"
+      VpcId: "vpc-0d3721c84333d21c6"
 
   Listener : 
     Type: "AWS::ElasticLoadBalancingV2::Listener"
