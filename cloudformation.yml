@@ -176,7 +176,7 @@ Resources:
               ContainerName: "${ProjectName}-${EnvironmentName}-web"
               ContainerPort: 80
               LoadBalancerName:  !Ref "AWS::NoValue"
-              TargetGroupArn: !GetAtt TargetGroup.Arn
+              TargetGroupArn: !Ref TargetGroup
           DeploymentController:
               Type: "ECS"
 
