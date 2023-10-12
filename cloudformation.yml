@@ -34,15 +34,7 @@ Resources:
       HealthCheckProtocol: "HTTP"
       VpcId: "vpc-04c4cd12748bfbb0f"
 
-  Listener : 
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
-    Properties: 
-      DefaultActions:
-        Type: "forward"
-        TargetGroupArn: !GetAtt TargetGroup.Arn
-      LoadBalancerArn: !GetAtt LoadBalancer.Arn
-      Port: 80
-      Protocol: "HTTP"
+
 
     ECRRepositoryWeb:
       Type: 'AWS::ECR::Repository'
