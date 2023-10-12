@@ -34,180 +34,188 @@ Resources:
       HealthCheckProtocol: "HTTP"
       VpcId: "vpc-04c4cd12748bfbb0f"
 
+  Listener : 
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties: 
+      DefaultActions:
+        Type: "forward"
+        TargetGroupArn: !GetAtt TargetGroup.Arn
+      LoadBalancerArn: !GetAtt LoadBalancer.Arn
+      Port: 80
+      Protocol: "HTTP"
 
+  ECRRepositoryWeb:
+    Type: 'AWS::ECR::Repository'
+    Properties:
+      RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
+      ImageTagMutability: MUTABLE   
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Only keep 10 images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+              },
+              "action": { "type": "expire" }
+            }]
+          }                 
 
-    ECRRepositoryWeb:
-      Type: 'AWS::ECR::Repository'
+  ECRRepositoryApi:
+    Type: 'AWS::ECR::Repository'
+    Properties:
+      RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/api"
+      ImageTagMutability: MUTABLE   
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Only keep 10 images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+              },
+              "action": { "type": "expire" }
+            }]
+          }                    
+
+  ECSCluster:
+      Type: "AWS::ECS::Cluster"
       Properties:
-        RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/web"
-        ImageTagMutability: MUTABLE   
-        LifecyclePolicy:
-          LifecyclePolicyText: |
-            {
-              "rules": [
-                {
-                  "rulePriority": 1,
-                  "description": "Only keep 10 images",
-                  "selection": {
-                    "tagStatus": "any",
-                    "countType": "imageCountMoreThan",
-                    "countNumber": 10
-                },
-                "action": { "type": "expire" }
-              }]
-            }                 
+          ClusterName: !Sub "${ProjectName}-${EnvironmentName}"
+          CapacityProviders: 
+            - "FARGATE"
+            - "FARGATE_SPOT"
 
-    ECRRepositoryApi:
-      Type: 'AWS::ECR::Repository'
+  Namespace :
+      Type: "AWS::ServiceDiscovery::HttpNamespace"
       Properties:
-        RepositoryName: !Sub "${ProjectName}/${EnvironmentName}/api"
-        ImageTagMutability: MUTABLE   
-        LifecyclePolicy:
-          LifecyclePolicyText: |
-            {
-              "rules": [
-                {
-                  "rulePriority": 1,
-                  "description": "Only keep 10 images",
-                  "selection": {
-                    "tagStatus": "any",
-                    "countType": "imageCountMoreThan",
-                    "countNumber": 10
-                },
-                "action": { "type": "expire" }
-              }]
-            }                    
+          Name: !Sub "${ProjectName}-${EnvironmentName}"
 
-    ECSCluster:
-        Type: "AWS::ECS::Cluster"
-        Properties:
-            ClusterName: !Sub "${ProjectName}-${EnvironmentName}"
-            CapacityProviders: 
-              - "FARGATE"
-              - "FARGATE_SPOT"
-
-    Namespace :
-        Type: "AWS::ServiceDiscovery::HttpNamespace"
-        Properties:
-            Name: !Sub "${ProjectName}-${EnvironmentName}"
-
-    ECSTaskDefinitionWeb:
-        Type: "AWS::ECS::TaskDefinition"
-        Properties:
-            ContainerDefinitions: 
-              - 
-                Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/web"
-                Name: !Sub "${ProjectName}-${EnvironmentName}-web"
-                PortMappings: 
-                  - 
-                    Name: !Sub "${ProjectName}-${EnvironmentName}-web-80"
-                    ContainerPort: 80
-                    HostPort: 80
-                    Protocol: "tcp"
-            Family: !Sub "${ProjectName}-${EnvironmentName}-web"
-            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-            NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
-              - "FARGATE"
-            Cpu: "1024"
-            Memory: "3072"
-
-    ECSTaskDefinitionApi:
-        Type: "AWS::ECS::TaskDefinition"
-        Properties:
-            ContainerDefinitions: 
-              - 
-                Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/api"
-                Name: !Sub "${ProjectName}-${EnvironmentName}-api"
-                PortMappings: 
-                  - 
-                    Name: !Sub "${ProjectName}-${EnvironmentName}-api-80"
-                    ContainerPort: 80
-                    HostPort: 80
-                    Protocol: "tcp"
-            Family: !Sub "${ProjectName}-${EnvironmentName}-api"
-            TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-            ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-            NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
-              - "FARGATE"
-            Cpu: "1024"
-            Memory: "3072"            
-
-    ECSServiceWeb:
-        Type: "AWS::ECS::Service"
-        Properties:
-            ServiceName: !Sub "${ProjectName}-${EnvironmentName}-web"
-            Cluster: !GetAtt ECSCluster.Arn
-            DesiredCount: 0
-            PlatformVersion: "LATEST"
-            TaskDefinition: !Ref ECSTaskDefinitionWeb
-            LaunchType : "FARGATE"
-            SchedulingStrategy: "REPLICA"
-            DeploymentConfiguration:
-                MaximumPercent: 200
-                MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker:
-                    Enable: true
-                    Rollback: true
-            NetworkConfiguration:
-                AwsvpcConfiguration:
-                    AssignPublicIp: "ENABLED"
-                    SecurityGroups:
-                      - "sg-0b3ace41a7a0a9210"
-                      - "sg-09c09fd84a1fd2ff7"
-                    Subnets:
-                      - "subnet-0a0a9c6b037524e02"
-                      - "subnet-09097b54b1b5ebaef"
-                      - "subnet-0cdb61a237b1c5de7"
-            LoadBalancers:
-              - 
-                ContainerName: "${ProjectName}-${EnvironmentName}-web"
-                ContainerPort: 80
-                LoadBalancerName:  !Ref "AWS::NoValue"
-                TargetGroupArn: !GetAtt TargetGroup.Arn
-            DeploymentController:
-                Type: "ECS"
-
-    ECSServiceApi:
-        Type: "AWS::ECS::Service"
-        Properties:
-            ServiceName: !Sub "${ProjectName}-${EnvironmentName}-api"
-            Cluster: !GetAtt ECSCluster.Arn
-            DesiredCount: 0
-            PlatformVersion: "LATEST"
-            TaskDefinition: !Ref ECSTaskDefinitionApi
-            LaunchType : "FARGATE"
-            SchedulingStrategy: "REPLICA"
-            DeploymentConfiguration:
-                MaximumPercent: 200
-                MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker:
-                    Enable: true
-                    Rollback: true
-            NetworkConfiguration:
-                AwsvpcConfiguration:
-                    AssignPublicIp: "ENABLED"
-                    SecurityGroups:
-                      - "sg-0b3ace41a7a0a9210"
-                      - "sg-09c09fd84a1fd2ff7"
-                    Subnets:
-                      - "subnet-0a0a9c6b037524e02"
-                      - "subnet-09097b54b1b5ebaef"
-                      - "subnet-0cdb61a237b1c5de7"
-            ServiceConnectConfiguration:
-              Enabled: true
-              Namespace : !GetAtt Namespace.Arn
-              Services : 
+  ECSTaskDefinitionWeb:
+      Type: "AWS::ECS::TaskDefinition"
+      Properties:
+          ContainerDefinitions: 
+            - 
+              Essential: true
+              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/web"
+              Name: !Sub "${ProjectName}-${EnvironmentName}-web"
+              PortMappings: 
                 - 
-                  PortName : !Sub "${ProjectName}-${EnvironmentName}-api-80"
-                  DiscoveryName : "api"
-                  ClientAliases :
-                    -
-                      Port : 80
-                      DnsName: "api"
-            DeploymentController:
-                Type: "ECS"
+                  Name: !Sub "${ProjectName}-${EnvironmentName}-web-80"
+                  ContainerPort: 80
+                  HostPort: 80
+                  Protocol: "tcp"
+          Family: !Sub "${ProjectName}-${EnvironmentName}-web"
+          TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+          ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+          NetworkMode: "awsvpc"
+          RequiresCompatibilities: 
+            - "FARGATE"
+          Cpu: "1024"
+          Memory: "3072"
+
+  ECSTaskDefinitionApi:
+      Type: "AWS::ECS::TaskDefinition"
+      Properties:
+          ContainerDefinitions: 
+            - 
+              Essential: true
+              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/api"
+              Name: !Sub "${ProjectName}-${EnvironmentName}-api"
+              PortMappings: 
+                - 
+                  Name: !Sub "${ProjectName}-${EnvironmentName}-api-80"
+                  ContainerPort: 80
+                  HostPort: 80
+                  Protocol: "tcp"
+          Family: !Sub "${ProjectName}-${EnvironmentName}-api"
+          TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+          ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+          NetworkMode: "awsvpc"
+          RequiresCompatibilities: 
+            - "FARGATE"
+          Cpu: "1024"
+          Memory: "3072"            
+
+  ECSServiceWeb:
+      Type: "AWS::ECS::Service"
+      Properties:
+          ServiceName: !Sub "${ProjectName}-${EnvironmentName}-web"
+          Cluster: !GetAtt ECSCluster.Arn
+          DesiredCount: 0
+          PlatformVersion: "LATEST"
+          TaskDefinition: !Ref ECSTaskDefinitionWeb
+          LaunchType : "FARGATE"
+          SchedulingStrategy: "REPLICA"
+          DeploymentConfiguration:
+              MaximumPercent: 200
+              MinimumHealthyPercent: 100
+              DeploymentCircuitBreaker:
+                  Enable: true
+                  Rollback: true
+          NetworkConfiguration:
+              AwsvpcConfiguration:
+                  AssignPublicIp: "ENABLED"
+                  SecurityGroups:
+                    - "sg-0b3ace41a7a0a9210"
+                    - "sg-09c09fd84a1fd2ff7"
+                  Subnets:
+                    - "subnet-0a0a9c6b037524e02"
+                    - "subnet-09097b54b1b5ebaef"
+                    - "subnet-0cdb61a237b1c5de7"
+          LoadBalancers:
+            - 
+              ContainerName: "${ProjectName}-${EnvironmentName}-web"
+              ContainerPort: 80
+              LoadBalancerName:  !Ref "AWS::NoValue"
+              TargetGroupArn: !GetAtt TargetGroup.Arn
+          DeploymentController:
+              Type: "ECS"
+
+  ECSServiceApi:
+      Type: "AWS::ECS::Service"
+      Properties:
+          ServiceName: !Sub "${ProjectName}-${EnvironmentName}-api"
+          Cluster: !GetAtt ECSCluster.Arn
+          DesiredCount: 0
+          PlatformVersion: "LATEST"
+          TaskDefinition: !Ref ECSTaskDefinitionApi
+          LaunchType : "FARGATE"
+          SchedulingStrategy: "REPLICA"
+          DeploymentConfiguration:
+              MaximumPercent: 200
+              MinimumHealthyPercent: 100
+              DeploymentCircuitBreaker:
+                  Enable: true
+                  Rollback: true
+          NetworkConfiguration:
+              AwsvpcConfiguration:
+                  AssignPublicIp: "ENABLED"
+                  SecurityGroups:
+                    - "sg-0b3ace41a7a0a9210"
+                    - "sg-09c09fd84a1fd2ff7"
+                  Subnets:
+                    - "subnet-0a0a9c6b037524e02"
+                    - "subnet-09097b54b1b5ebaef"
+                    - "subnet-0cdb61a237b1c5de7"
+          ServiceConnectConfiguration:
+            Enabled: true
+            Namespace : !GetAtt Namespace.Arn
+            Services : 
+              - 
+                PortName : !Sub "${ProjectName}-${EnvironmentName}-api-80"
+                DiscoveryName : "api"
+                ClientAliases :
+                  -
+                    Port : 80
+                    DnsName: "api"
+          DeploymentController:
+              Type: "ECS"
