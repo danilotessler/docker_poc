@@ -149,6 +149,7 @@ Resources:
 
   ECSServiceWeb:
       Type: "AWS::ECS::Service"
+      DependsOn: Listener
       Properties:
           ServiceName: !Sub "${ProjectName}-${EnvironmentName}-web"
           Cluster: !GetAtt ECSCluster.Arn
