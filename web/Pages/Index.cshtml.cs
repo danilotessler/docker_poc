@@ -17,7 +17,7 @@ public class IndexModel : PageModel
 
     public void OnGet()
     {
-        string res = GetResult("api/");
+        string res = GetResult("api");
 
         Message = "After calling the service: " + res; 
     }
@@ -37,13 +37,21 @@ public class IndexModel : PageModel
 
         string path = "balance/";
 
-        HttpResponseMessage response = client.GetAsync(path).Result;
-        if (response.IsSuccessStatusCode)
+        try
         {
-            ret = response.Content.ReadAsStringAsync().Result;
+            HttpResponseMessage response = client.GetAsync(path).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                ret = response.Content.ReadAsStringAsync().Result;
+            }
+            else
+                throw new ApplicationException("Calling the service got " + response.StatusCode + "\r\n" + response.Content);
         }
-        else
-            throw new ApplicationException("Calling the service got " + response.StatusCode + "\r\n" + response.Content);
+        catch (Exception ex)
+        {
+            throw new ApplicationException("Erro calling " + client.BaseAddress + "\r\n" + ex.ToString());
+        }
+
 
         return ret;
     }
