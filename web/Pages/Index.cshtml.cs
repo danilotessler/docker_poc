@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using System.Net;
+
 namespace docker_poc.Pages;
 
 public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
 
-    public string Message = "No API URI provided";
+    public string WebServerData = "N/A";
+    public string APIData = "N/A";
 
     public IndexModel(ILogger<IndexModel> logger)
     {
@@ -17,16 +20,20 @@ public class IndexModel : PageModel
 
     public void OnGet()
     {
-        Message = "Call 1 : " + GetResult("api") + "<br />";
+        string hostName = Dns.GetHostName(); // Retrive the Name of HOST
+        string myIP = Dns.GetHostByName(hostName).AddressList[0].ToString();
+
+        WebServerData = "Enquire time: " + DateTime.Now.ToString("HH:mm:ss.fffff") + " - Hostname: " + hostName + " - IP: " + myIP;
+        APIData = QueryAPI();
     }
 
-    private string GetResult(string uri)
+    private string QueryAPI()
     {
         string ret = "";
 
         HttpClient client = new HttpClient();
 
-        client.BaseAddress = new Uri("http://" + uri);
+        client.BaseAddress = new Uri("http://api");
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json"));
