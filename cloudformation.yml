@@ -38,9 +38,11 @@ Resources:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties: 
       DefaultActions:
-        Type: "forward"
-        TargetGroupArn: !GetAtt TargetGroup.TargetGroupArn
-      LoadBalancerArn: !GetAtt LoadBalancer.LoadBalancerArn
+        - Type: forward
+        TargetGroupArn: 
+          Ref: TargetGroup
+      LoadBalancerArn:
+        Ref: LoadBalancer
       Port: 80
       Protocol: "HTTP"
 
