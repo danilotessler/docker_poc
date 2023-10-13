@@ -122,7 +122,7 @@ Resources:
                 ContainerPort: 80
                 HostPort: 80
                 Protocol: "tcp"
-                AppProtocol: "HTTP"
+                AppProtocol: "http"
         Family: !Sub "${ProjectName}-${EnvironmentName}-web"
         TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
         ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
@@ -153,7 +153,7 @@ Resources:
                   ContainerPort: 80
                   HostPort: 80
                   Protocol: "tcp"
-                  AppProtocol: "HTTP"
+                  AppProtocol: "http"
           Family: !Sub "${ProjectName}-${EnvironmentName}-api"
           TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
           ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
