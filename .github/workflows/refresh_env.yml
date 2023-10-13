@@ -1,0 +1,37 @@
+name: 'Refresh environment'
+
+on:
+  workflow_dispatch :
+    inputs :
+      ProjectName:
+        description: 'Project Name'
+        required: true
+      EnvironmentName:
+        description: 'Environment Name'
+        required: true
+
+jobs:
+  build:
+    name: Refresh environment 
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+
+    - name: Web
+      run: |
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --force-new-deployment
+        
+    - name: Api
+        run: |
+          aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --force-new-deployment
+  
+        
+
+
+          
