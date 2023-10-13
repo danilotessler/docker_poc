@@ -19,7 +19,10 @@ public class IndexModel : PageModel
     {
         string res = GetResult("api");
 
-        Message = "After calling the service: " + res; 
+        string res2 = GetResult("api2");
+
+        Message = "Call 1 : " + res + "<br />";
+        Message += "Call 2 : " + res2 + "<br />";
     }
 
     private string GetResult(string uri)
@@ -45,11 +48,11 @@ public class IndexModel : PageModel
                 ret = response.Content.ReadAsStringAsync().Result;
             }
             else
-                throw new ApplicationException("Calling the service got " + response.StatusCode + "\r\n" + response.Content);
+                ret = "Calling the service got " + response.StatusCode + "\r\n" + response.Content;
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("Erro calling " + client.BaseAddress + "\r\n" + ex.ToString());
+            ret = "Erro calling " + client.BaseAddress + "\r\n" + ex.ToString();
         }
 
 
