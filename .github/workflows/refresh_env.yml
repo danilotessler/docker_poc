@@ -28,7 +28,7 @@ jobs:
         aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --force-new-deployment
         
     - name: Api
-        run: |
+      run: |
           aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --force-new-deployment
   
         
