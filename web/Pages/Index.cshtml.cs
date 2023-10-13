@@ -17,13 +17,9 @@ public class IndexModel : PageModel
 
     public void OnGet()
     {
-        if (!string.IsNullOrEmpty(HttpContext.Request.Query["uri"]))
-        {
-            string uri = HttpContext.Request.Query["uri"].ToString();
-            string res = GetResult(uri);
+        string res = GetResult("api/");
 
-            Message = "After calling the service: " + uri + " <br/>" + res; 
-        }
+        Message = "After calling the service: " + res; 
     }
 
     private string GetResult(string uri)
@@ -37,7 +33,7 @@ public class IndexModel : PageModel
         client.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json"));
         
-        Random rnd = new Random();
+        Random rnd = new();
 
         string path = "balance/";
 
