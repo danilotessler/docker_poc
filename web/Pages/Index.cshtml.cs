@@ -17,12 +17,7 @@ public class IndexModel : PageModel
 
     public void OnGet()
     {
-        string res = GetResult("api");
-
-        string res2 = GetResult("api2");
-
-        Message = "Call 1 : " + res + "<br />";
-        Message += "Call 2 : " + res2 + "<br />";
+        Message = "Call 1 : " + GetResult("api") + "<br />";
     }
 
     private string GetResult(string uri)
