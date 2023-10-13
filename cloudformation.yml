@@ -193,14 +193,6 @@ Resources:
           ServiceConnectConfiguration:
             Enabled: true
             Namespace : !GetAtt Namespace.Arn
-            Services : 
-              - 
-                PortName : !Sub "${ProjectName}-${EnvironmentName}-web-80"
-                DiscoveryName : "web"
-                ClientAliases :
-                  -
-                    Port : 80
-                    DnsName: "web"                    
           LoadBalancers:
             - 
               ContainerName: !Sub "${ProjectName}-${EnvironmentName}-web"
