@@ -104,25 +104,33 @@ Resources:
   ECSTaskDefinitionWeb:
       Type: "AWS::ECS::TaskDefinition"
       Properties:
-          ContainerDefinitions: 
-            - 
-              Essential: true
-              Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/web"
-              Name: !Sub "${ProjectName}-${EnvironmentName}-web"
-              PortMappings: 
-                - 
-                  Name: !Sub "${ProjectName}-${EnvironmentName}-web-80"
-                  ContainerPort: 80
-                  HostPort: 80
-                  Protocol: "tcp"
-          Family: !Sub "${ProjectName}-${EnvironmentName}-web"
-          TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-          ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
-          NetworkMode: "awsvpc"
-          RequiresCompatibilities: 
-            - "FARGATE"
-          Cpu: "1024"
-          Memory: "3072"
+        ContainerDefinitions: 
+          - 
+            Essential: true
+            Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/web"
+            Name: !Sub "${ProjectName}-${EnvironmentName}-web"
+            LogConfiguration:
+              LogDriver: "awslogs"
+              Options:
+                awslogs-group: !Sub "/ecs/${ProjectName}-${EnvironmentName}-web"
+                awslogs-region: !Sub "${AWS::Region}"
+                awslogs-stream-prefix: "ecs"
+                awslogs-create-group: true               
+            PortMappings: 
+              - 
+                Name: !Sub "${ProjectName}-${EnvironmentName}-web-80"
+                ContainerPort: 80
+                HostPort: 80
+                Protocol: "tcp"
+                AppProtocol: "HTTP"
+        Family: !Sub "${ProjectName}-${EnvironmentName}-web"
+        TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+        ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
+        NetworkMode: "awsvpc"
+        RequiresCompatibilities: 
+          - "FARGATE"
+        Cpu: "1024"
+        Memory: "3072"
 
   ECSTaskDefinitionApi:
       Type: "AWS::ECS::TaskDefinition"
@@ -132,12 +140,20 @@ Resources:
               Essential: true
               Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}/${EnvironmentName}/api"
               Name: !Sub "${ProjectName}-${EnvironmentName}-api"
+              LogConfiguration:
+                LogDriver: "awslogs"
+                Options:
+                  awslogs-group: !Sub "/ecs/${ProjectName}-${EnvironmentName}-api"
+                  awslogs-region: !Sub "${AWS::Region}"
+                  awslogs-stream-prefix: "ecs"
+                  awslogs-create-group: true                 
               PortMappings: 
                 - 
                   Name: !Sub "${ProjectName}-${EnvironmentName}-api-80"
                   ContainerPort: 80
                   HostPort: 80
                   Protocol: "tcp"
+                  AppProtocol: "HTTP"
           Family: !Sub "${ProjectName}-${EnvironmentName}-api"
           TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
           ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/container_task"
