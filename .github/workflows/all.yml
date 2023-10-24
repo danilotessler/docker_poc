@@ -60,8 +60,8 @@ jobs:
             
     - name: Start API
       run: |
-        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --desired-count 2
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --desired-count 2
 
     - name: Start Web
       run: |
-        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --desired-count 2
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --desired-count 2
