@@ -1,68 +1,67 @@
 name: 'Full deployment'
 
 on:
-    workflow_dispatch :
-        inputs :
-            ProjectName:
-                description: 'Project Name'
-                required: true
-            EnvironmentName:
-                description: 'Environment Name'
-                required: true
+  workflow_dispatch :
+    inputs :
+      ProjectName:
+        description: 'Project Name'
+        required: true
+      EnvironmentName:
+        description: 'Environment Name'
+        required: true
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        steps:
-            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            - name: Checkout code from master branch
-                uses: actions/checkout@v2
+  build:
+    runs-on: ubuntu-latest
 
-            # Configure AWS Credential
-            - name: Configure AWS Credentials
-                uses: aws-actions/configure-aws-credentials@v1
-                with:
-                    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                    aws-region: us-east-2
+    steps:
 
-            # Deploy to AWS CloudFormation
-            - name: Deploy to AWS CloudFormation
-                uses: aws-actions/aws-cloudformation-github-deploy@v1
-                with:
-                    name: ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}
-                    template: cloudformation.yml
-                    no-fail-on-empty-changeset: "1"
-                    parameter-overrides: "ProjectName=${{ github.event.inputs.ProjectName }},EnvironmentName=${{ github.event.inputs.EnvironmentName }}"
+    - name: Checkout code from master branch
+      uses: actions/checkout@v2
 
-            - name: Login to Amazon ECR
-                id: login-ecr
-                uses: aws-actions/amazon-ecr-login@v1
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
 
-            - name: Build, tag, and push Web
-                env:
-                    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-                    ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/web
-                    IMAGE_TAG: latest
-                run: |
-                    cd web
-                    docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-                    docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    - name: Deploy to AWS CloudFormation
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      with:
+        name: ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}
+        template: cloudformation.yml
+        no-fail-on-empty-changeset: "1"
+        parameter-overrides: "ProjectName=${{ github.event.inputs.ProjectName }},EnvironmentName=${{ github.event.inputs.EnvironmentName }}"
 
-            - name: Build, tag, and push API
-                env:
-                    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-                    ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/api
-                    IMAGE_TAG: latest
-                run: |
-                    cd api
-                    docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-                    docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-                    
-            - name: Start API
-                run: |
-                    aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --desired-count 2
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
 
-            - name: Start Web
-                    run: |
-                        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --desired-count 2
+    - name: Build, tag, and push Web
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/web
+        IMAGE_TAG: latest
+      run: |
+        cd web
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Build, tag, and push API
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.inputs.ProjectName }}/${{ github.event.inputs.EnvironmentName }}/api
+        IMAGE_TAG: latest
+      run: |
+        cd api
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            
+    - name: Start API
+      run: |
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --desired-count 2
+
+    - name: Start Web
+      run: |
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --desired-count 2
