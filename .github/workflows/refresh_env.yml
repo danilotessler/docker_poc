@@ -1,4 +1,4 @@
-name: 'Refresh environment'
+name: 'Bring Env Up & Down'
 
 on:
   workflow_dispatch :
@@ -9,6 +9,9 @@ on:
       EnvironmentName:
         description: 'Environment Name'
         required: true
+      Capacity:
+        description: 'Desired capacity'
+        required: true        
 
 jobs:
   build:
@@ -25,11 +28,11 @@ jobs:
 
     - name: Web
       run: |
-        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --force-new-deployment
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-web --desired-count ${{ github.event.inputs.Capacity }}
         
     - name: Api
       run: |
-          aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --force-new-deployment
+        aws ecs update-service --cluster ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }} --service ${{ github.event.inputs.ProjectName }}-${{ github.event.inputs.EnvironmentName }}-api --desired-count ${{ github.event.inputs.Capacity }}
   
         
 
